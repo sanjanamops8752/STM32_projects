@@ -1,6 +1,5 @@
 //ON BOARD LED TOGGLE USING PUSH PULL/OPEN DRAIN CONFIGURATION FOR OUTPUT PIN
 #include "stm32f4xx.h"
-#include "stm32f407xx_gpio_driver.h"
 
 void delay(void)
 {
