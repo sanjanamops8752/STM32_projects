@@ -19,7 +19,8 @@ int main(void)
 	GpioLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 	//GpioLed.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP; //for push pull type config
 	GpioLed.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_OD; //for open drain config
-	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+	//GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU; //for push pull
+	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD; //for open drain
 
 	GPIO_PeriClockControl(GPIOD,ENABLE);
 
