@@ -362,7 +362,7 @@ void GPIO_IRQPriorityConfig(uint8_t IRQNumber,uint32_t IRQPriority)
 	{
 		if(IRQNumber <= 31)
 		{
-			//program ISER0 register
+			//program ISER0 register - to enable interrupt
 			*NVIC_ISER0 |= ( 1 << IRQNumber );
 
 		}else if(IRQNumber > 31 && IRQNumber < 64 ) //32 to 63
@@ -379,7 +379,7 @@ void GPIO_IRQPriorityConfig(uint8_t IRQNumber,uint32_t IRQPriority)
 	{
 		if(IRQNumber <= 31)
 		{
-			//program ICER0 register
+			//program ICER0 register - to disable interrupt
 			*NVIC_ICER0 |= ( 1 << IRQNumber );
 		}else if(IRQNumber > 31 && IRQNumber < 64 )
 		{
