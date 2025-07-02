@@ -95,14 +95,13 @@ typedef struct
 /*
  * Peripheral Clock setup
  */
-void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnorDi);
+void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnorDi); //using this func we will enable/disable peripheral clock to a gpio base address 
 
 /*
  * Init and De-init
  */
-void GPIO_Init(GPIO_Handle_t *pGPIOHandle);
-void GPIO_DeInit(GPIO_RegDef_t *pGPIOx);
-
+void GPIO_Init(GPIO_Handle_t *pGPIOHandle); //pointer to handle structure to initialize gpio port and pin 
+void GPIO_DeInit(GPIO_RegDef_t *pGPIOx); //de-intialize register to its reset state 
 
 /*
  *Data read and write
