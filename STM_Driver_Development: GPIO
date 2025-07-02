@@ -34,3 +34,65 @@
   Top transistor will be turned on, when output has to go high and bottom transistor turned on when output has to go low. 
   How to Drive and LED From Push-Pull Mode GPIO Pin? 
   When we give 1 as input, top transsitor will be ON and led will be in forward bias. Vice versa for turning off led. 
+
+2. GPIO PIN INTERRUPT DELIVERY TO PROCESSOR 
+┌───────────────────────┐
+│   GPIO Pin Triggered  │ ◄─── (Rising/Falling Edge)
+└────────────┬──────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│ Configure GPIO as Input +  │
+│ Alternate function: EXTI   │
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│ SYSCFG EXTICR Register     │
+│ Select GPIO Port for EXTIx │ ◄─── (e.g., PA0 → EXTI0)
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│      EXTI Line Block       │
+│ Detects edge & sets PENDING│
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│     Check EXTI_IMR         │
+│ (Interrupt Mask Register)  │
+│     Is line unmasked?      │
+└───────┬────────────┬───────┘
+        │            │
+     Yes▼         No ▼
+ ┌────────────┐  (Masked, no action)
+ │ Generate   │
+ │ Interrupt  │
+ └────┬───────┘
+      │
+      ▼
+┌────────────────────────────┐
+│     NVIC (IRQ Controller)  │
+│ - Prioritizes interrupt    │
+│ - Sends to CPU if allowed  │
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│ CPU Looks up Vector Table  │
+│ for EXTIx_IRQn handler     │
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│ Executes ISR (Interrupt    │
+│ Service Routine)           │
+│ e.g., EXTI0_IRQHandler()   │
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│ Clear EXTI Pending Flag    │
+│ (EXTI_PR |= 1 << x)        │
+└────────────────────────────┘
