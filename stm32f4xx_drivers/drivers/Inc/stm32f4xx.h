@@ -140,7 +140,8 @@ typedef struct
 
 //RCC,EXTI,SYSCFG
 #define RCC 				((RCC_RegDef_t*)RCC_BASEADDR) //- Take this raw base address and interpret it as a pointer to a structure of type RCC_RegDef_t
-
+#define EXTI				((EXTI_RegDef_t*)EXTI_BASEADDR)
+#define SYSCFG				((SYSCFG_RegDef_t*)SYSCFG_BASEADDR)
 
 /*
  * CLOCK ENABLE MACROS FOR GPIOx
