@@ -1,3 +1,4 @@
+//contains driver specific data 
 
 #ifndef INC_STM32F407XX_GPIO_DRIVER_H_
 #define INC_STM32F407XX_GPIO_DRIVER_H_
@@ -23,8 +24,9 @@ typedef struct
 
 typedef struct
 {
+        //pointer to hold the base address of GPIO peripheral
 	GPIO_RegDef_t *pGPIOx;       		/*base address of the GPIO port to which the pin belongs*/
-	GPIO_PinConfig_t GPIO_PinConfig;   /*GPIO pin configuration settings*/
+	GPIO_PinConfig_t GPIO_PinConfig;   /*structure - GPIO pin configuration settings*/
 
 }GPIO_Handle_t;
 
