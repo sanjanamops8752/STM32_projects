@@ -1,6 +1,8 @@
 //DEVICE SPECIFIC HEADER FILE - describes the microcontroller
 //MCU specific details: base addresses of various memories of MCU/bus domains/peripheral registers
 //clock enable and disable macros
+//IRQ definitions 
+//peripheral register definition structures, bit definitions
 
 #ifndef INC_STM32F4XX_H_
 #define INC_STM32F4XX_H_
