@@ -81,16 +81,17 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle)
 
 	//1 . configure the mode of gpio pin
 
-	if(pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG)
+	//de-reference the handle pointer
+	if(pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG) //if less than equal to gpio pin mode 3 (grom gpio_driver.h), its non interrupt mode
 	{
 		//the non interrupt mode
-		temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber ) );
+		temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber ) ); //each pin takes 2 bit fields 
 		pGPIOHandle->pGPIOx->MODER &= ~( 0x3 << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber)); //clearing
 		pGPIOHandle->pGPIOx->MODER |= temp; //setting
 
 	}else
 	{
-       //interrupt mode
+           //interrupt mode
 	}
 
 	//2. configure the speed
@@ -190,8 +191,8 @@ void GPIO_DeInit(GPIO_RegDef_t *pGPIOx)
 uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber)
 {
    uint8_t value;
-
-   value = (uint8_t )((pGPIOx->IDR  >> PinNumber) & 0x00000001 ) ;
+   //read correspoding bit position in input data register (idr) acc to pin num 
+   value = (uint8_t )((pGPIOx->IDR  >> PinNumber) & 0x00000001 ) ; //right shift by num of pin num to extract value  
 
    return value;
 }
