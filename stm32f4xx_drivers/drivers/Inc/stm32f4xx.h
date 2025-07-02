@@ -139,13 +139,14 @@ typedef struct
 #define GPIOI  				((GPIO_RegDef_t*)GPIOI_BASEADDR)
 
 //RCC,EXTI,SYSCFG
-#define RCC 				((RCC_RegDef_t*)RCC_BASEADDR)
+#define RCC 				((RCC_RegDef_t*)RCC_BASEADDR) //- Take this raw base address and interpret it as a pointer to a structure of type RCC_RegDef_t
+
 
 /*
  * CLOCK ENABLE MACROS FOR GPIOx
  */
 
-#define GPIOA_PCLK_EN()    	(RCC->AHB1ENR |= (1 << 0))
+#define GPIOA_PCLK_EN()    	(RCC->AHB1ENR |= (1 << 0)) //accessing member of struct here
 #define GPIOB_PCLK_EN()		(RCC->AHB1ENR |= (1 << 1))
 #define GPIOC_PCLK_EN()		(RCC->AHB1ENR |= (1 << 2))
 #define GPIOD_PCLK_EN()		(RCC->AHB1ENR |= (1 << 3))
