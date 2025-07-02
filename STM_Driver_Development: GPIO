@@ -1,0 +1,36 @@
+1. INTRODUCTION 
+- GPIO is typically used for reading digital signal, issuing interrupts, waking up processor etc. 
+- GPIO port is collection of fixed number of I/O pins. 
+
+1.1 How Is GPIO Pin Actually Implemented Inside a MCU? 
+  a. The pin on the inside is connected to an input buffer, output buffer and enable line. 
+  b. Enable line is 0 to make pin work in output mode, enable line is 1 to make pin work in input mode. 
+  c. This enable line is configured by GPIO control registers. 
+
+1.2 GPIO INPUT MODE WITH HIGH IMPEDANCE STATE 
+  a. High-Z state - means to keep the pin floating by not connecting to either high or low voltage level. 
+  b. When we power up the MCU, by default all pins will be in input mode in high-z state.
+  c. Keeping a pin in floating state can lead to leakage current or make it susceptible to noise or lead to hhigher power consumption.
+
+1.3 GPIO INPUT MODE WITH PULL UP PULL DOWN STATE 
+  a. The floating state can be avoided by activating an internal/external pull-up (to pull pin to high state) or pull-down resistor (to drive into ground state). 
+  b. We have GPIO registers which allow us to do these configurations. 
+  c. Its always safe to keep unused GPIO pin in either of these states to avoid voltage fluctuations. 
+
+1.4 GPIO OUTPUT MODE WITH OPEN DRAIN OUTPUT 
+  a. Open drain configuration is nothing but the top pmos transistor is deactivated, only NMOS is present. 
+  b. So when the NMOS transistor is switched on, Pin will be pulled to ground, when the transistor is off, pin will be floating. 
+  c. Open drain output is useless until we provode a pull-up capability - by activating an internal/external pull-up resistor. 
+
+1.5 GPIO OUTPUT MODE WITH OPEN DRAIN PULL UP RESISTOR 
+  How to Drive LED From Open-Drain GPIO Pin? 
+  First activate the internal pull-up resistor then connect led to the pin. 
+  When we give 1 as inout to the NMOS transistor, inverter feeds it 0 and the NMOS is turned off, then LED will be driven into VCC or pulled up and LED will glow. 
+  Vice versa if we want to turn off the LED. 
+  Internal pull-up resistor value is fixed - between 10-15kOhms. 
+
+1.6 GPIO OUTPUT MODE PUSH-PULL CONFIGURATION 
+  In push-pull config, we do not need any pull up or pull down resistor, only two transistors. 
+  Top transistor will be turned on, when output has to go high and bottom transistor turned on when output has to go low. 
+  How to Drive and LED From Push-Pull Mode GPIO Pin? 
+  When we give 1 as input, top transsitor will be ON and led will be in forward bias. Vice versa for turning off led. 
