@@ -253,6 +253,8 @@ typedef struct
  * This macro returns a code( between 0 to 7) for a given GPIO base address(x)
  */
 #define GPIO_BASEADDR_TO_CODE(x)      ( (x == GPIOA)?0:\
+		                                (x == GPIOB)?1:\
+		                                (x == GPIOC)?2:0 )
 
 //some generic macros
 
