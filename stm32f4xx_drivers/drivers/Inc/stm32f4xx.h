@@ -127,6 +127,34 @@ typedef struct
 
 } RCC_RegDef_t;
 
+/*
+ * peripheral register definition structure for EXTI
+ */
+typedef struct
+{
+	__vo uint32_t IMR;    
+	__vo uint32_t EMR;   
+	__vo uint32_t RTSR;   
+	__vo uint32_t FTSR;   
+	__vo uint32_t SWIER;  
+	__vo uint32_t PR;     
+
+}EXTI_RegDef_t;
+
+/*
+ * peripheral register definition structure for SYSCFG
+ */
+typedef struct
+{
+	__vo uint32_t MEMRMP;       
+	__vo uint32_t PMC;         
+	__vo uint32_t EXTICR[4];    
+	uint32_t      RESERVED1[2];  
+	__vo uint32_t CMPCR;        
+	uint32_t      RESERVED2[2];  
+	__vo uint32_t CFGR;         
+} SYSCFG_RegDef_t;
+
 //GPIO-Peripheral register definitions- base address typecasted to GPIO_RegDef_t
 #define GPIOA  				((GPIO_RegDef_t*)GPIOA_BASEADDR)
 #define GPIOB  				((GPIO_RegDef_t*)GPIOB_BASEADDR)
@@ -220,6 +248,11 @@ typedef struct
 #define GPIOG_REG_RESET()               do{ (RCC->AHB1RSTR |= (1 << 6)); (RCC->AHB1RSTR &= ~(1 << 6)); }while(0)
 #define GPIOH_REG_RESET()               do{ (RCC->AHB1RSTR |= (1 << 7)); (RCC->AHB1RSTR &= ~(1 << 7)); }while(0)
 #define GPIOI_REG_RESET()               do{ (RCC->AHB1RSTR |= (1 << 8)); (RCC->AHB1RSTR &= ~(1 << 8)); }while(0)
+
+/*
+ * This macro returns a code( between 0 to 7) for a given GPIO base address(x)
+ */
+#define GPIO_BASEADDR_TO_CODE(x)      ( (x == GPIOA)?0:\
 
 //some generic macros
 
