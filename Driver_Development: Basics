@@ -1,0 +1,151 @@
+1. UNDERSTANDING MEMORY MAP OF THE MCU 
+  1.1 Addressable memory addresses produced by the processor
+  Width of the ARM core system bus - 32 bits meaning the processor can produce 2^32 addresses successfully (range: 0x0000_0000 - 0xffff_ffff) 
+  - means the address range of the microprocessor starts and ends in this range and the manufacturer will use this range to place multiple peripherals there. 
+
+2. BUS INTERFACES OF MCU 
+  Processor and the peripherals talk by bus interfaces. 
+  a. System Bus: Includes three main buses- control bus, data bus, instruction bus.
+  b. Instruction Bus: Fetches instrcutions from the flash memory to CPU.
+     Used in Havard architecture, where instruction and data are stored seperately.  
+  c. Data Bus: Carries data between CPU, (flash) memory and I/O devices. 
+  
+  AHB (Advanced High-Performance Bus) - used for high speed communication in ARM based SoCs, carries bith instrcution and data depending on transaction. 
+                                        Supports burst transfers, pipelining for efficiency. 
+  APB (Advanced Peripheral Bus) - used for low speed peripherals like timers, UART, GPIO, I2C. Mostly carries data and control signals. Supporrs basic read/write. 
+
+3. CLOCKS 
+  a. A microcontroller is nothing but a digital circuitry which is synchronous. Sync with the clock. If there is no clock, each component of the MCU will sync on their own and 
+  wont work together at all. 
+  b. What is clock? square wave signals of a certain frequency.
+  c. There is a relationship between the power consumption and frequency of the clock. 
+
+  3.1 Clock sources used to drive the system clock 
+    a. Crystal Oscillator - an external component (HSE - high speed external - 8MHz)
+    b. RC (Resistive Capacitive) Oscillator - comes inside the mc (HSI - high speed internal) 
+    c. PLL - also inside the mc 
+    In PLL we generate a higher wave frequency by taking lower frequency clock as an input. 
+
+  3.2 Clock Tree 
+    a. System Clock (SYSCLK)
+      - This is the main clock that drives the CPU core.
+      - It’s usually derived from an external crystal oscillator or internal RC oscillator, often scaled up using a PLL (Phase-Locked Loop).
+      - All other clocks are typically derived from this one.
+    b. Bus Clock
+      - This clock drives the internal buses (like AHB, APB) that connect the CPU to memory and peripherals.
+      - Often a divided-down version of the system clock.
+      - For example, if SYSCLK is 120 MHz, the AHB bus might run at 60 MHz.
+    c.  Peripheral Clock
+      - This is the clock that runs individual peripherals like UART, SPI, I2C, timers, etc.
+      - Derived from the bus clock (e.g., APB1 or APB2) and may have additional dividers.
+      - Some peripherals (like timers) can run at twice the bus clock if configured that way.
+  
+[Oscillator] → [PLL] → [System Clock (SYSCLK)]
+                          ↓
+                    [AHB Bus Clock]
+                          ↓
+                ┌──────────────┐
+                ↓              ↓
+         [APB1 Bus Clock]   [APB2 Bus Clock]
+                ↓              ↓
+     [Low-speed Peripherals]  [High-speed Peripherals]
+
+4. PERIPHERAL CLOCK CONFIGURATION 
+  a. In modern MCUs, before using any peripheral we must first enable its peripheral clock using peripheral clock registers.  
+  b. By default, peripheral clocks are disabled to save power. 
+  c. A peripheral won’t take/respond to configuration values if we have not enabled its peripheral clock. 
+  d. In STM32 MC, peripheral clocks are managed through RCC registers. 
+
+5. VECTOR TABLE 
+  A vector table is a lookup table of memory addresses (aka vectors) that point to exception and interrupt handlers.
+  - Each entry is a pointer to a function (an ISR or exception handler).
+  - The table is located at a fixed memory address (usually at 0x00000000 or can be relocated).
+  - The CPU consults this table whenever an exception or interrupt occurs.
+  
+  5.1 NVIC (Nested Vector Interrupt Controller) 
+    The NVIC is a hardware block inside ARM Cortex-M microcontrollers that:
+    - Handles all interrupts and exceptions
+    - Prioritizes them
+    - Supports nesting, so higher-priority interrupts can preempt lower ones
+    - Is tightly integrated with the CPU core, enabling super-fast response
+    Think of it as the interrupt manager—it decides when and which interrupt to handle, and how to get there.
+  
+  5.2 How NVIC Uses the Vector Table
+    a. Interrupt Occurs - A peripheral (like a timer or UART) triggers an interrupt signal.
+    b. NVIC Detects It - NVIC checks which interrupt is pending and whether it’s enabled.
+    c. Priority Check - NVIC compares priorities of all pending interrupts. If the new one is higher than the current task, it proceeds.
+    d. Vector Table Lookup - NVIC uses the IRQ (Interrupt Request) number to find the address of the ISR (Interrupt Service Routine) in the vector table.
+    e. CPU Jumps to ISR - The CPU suspends the current task, pushes context to the stack, and jumps to the ISR address fetched from the vector table.
+    f. ISR Executes - Your custom handler runs and deals with the event (e.g., reads a sensor, clears a flag).
+    g. Return to Main Code - Once done, the CPU pops the context and resumes where it left off.
+    
+    Why “Nested” and “Vectored”?
+    - Nested: Higher-priority interrupts can interrupt lower-priority ones.
+    - Vectored: Each interrupt has a dedicated vector (address) in the table—no polling or shared handlers needed.
+
+  5.3 How is an Interrupt Handled and ISR Executed?
+    a. Peripheral Raises an IRQ
+    - A hardware peripheral (like a Timer or UART) finishes its job and raises an IRQ signal.
+    - Each peripheral is assigned a unique IRQ number that identifies it to the NVIC.
+    b. NVIC Detects and Prioritizes the Interrupt
+    - NVIC checks if the IRQ is enabled and not masked.
+    - It uses the IRQ number + 16 to index into the vector table.
+    - The vector table contains the address of the ISR (Interrupt Service Routine) for that IRQ.
+    c. CPU Stacks Context and Jumps to ISR
+    - CPU automatically pushes a stack frame: R0–R3, R12, LR, PC, and xPSR.
+    - The Link Register (LR) is loaded with a special "EXC_RETURN" value (like 0xFFFFFFF9), used to know how to return.
+    - Then it jumps to the ISR address fetched from the vector table.
+    d. ISR Executes and Returns
+    - The ISR runs your custom code (e.g., clears the interrupt flag, reads data).
+    - When finished, the special EXC_RETURN value in LR tells the CPU to:
+    - Pop the original registers from the stack
+    - Resume the previously interrupted code
+
+    DIAGRAM TO EXPLAIN ABOVE: 
+    
+    [ Peripheral Event Occurs ]
+            ↓
+    [ Peripheral raises IRQ line ]
+            ↓
+    [ NVIC detects interrupt request ]
+            ↓
+    [ NVIC checks: 
+       - Is IRQ enabled?
+       - Is priority higher than current execution? ]
+            ↓
+    [ NVIC uses (IRQ number + 16) to index into the vector table ]
+            ↓
+    [ NVIC fetches ISR (Interrupt Service Routine) address ]
+            ↓
+    [ CPU:
+       - Pushes R0–R3, R12, LR, PC, xPSR onto stack
+       - Loads special EXC_RETURN value into LR
+       - Sets PC to ISR address (starts executing ISR) ]
+            ↓
+    [ ISR executes:
+       - Handles interrupt (e.g., clear flag, read data)
+       - Typically ends with BX LR or special return sequence ]
+            ↓
+    [ CPU:
+       - Pops saved registers from stack
+       - Uses EXC_RETURN to resume interrupted code at exact place ]
+
+  5.4 NVIC vs GIC 
+    NVIC: Nested Vectored Interrupt Controller — in single core -  used in ARM Cortex-M microcontrollers.
+    GIC: Generic Interrupt Controller — in multi-core used in ARM Cortex-A processors (like in smartphones and SoCs).
+    Purpose: Both are interrupt controllers—they manage how the CPU receives and handles interrupts from peripherals or internal events.
+    - GIC-C typically refers to the CPU Interface component, which handles interrupt signaling to the processor.
+    - GIC-D refers to the Distributor, which manages interrupt distribution across multiple CPUs.
+
+6. MAPPING BETWEEN EXTI AND NVIC IN STM32 
+  a. In STM32 microcontroller architecture, the EXTI (External Interrupt/Event Controller) engine is connected to the AMBA APB (Advanced Peripheral Bus) and serves 
+     as a bridge between external interrupt sources and the NVIC (Nested Vectored Interrupt Controller), which is an integral part of the ARM Cortex-M processor. 
+  b. The EXTI controller can handle up to 23 configurable interrupt lines, each of which can be routed to the NVIC, enabling the processor to respond to various external events. Some peripherals, depending on their design in the ST architecture, route their interrupt signals through these EXTI lines before reaching the NVIC, 
+     while others may bypass the EXTI altogether and connect directly to the NVIC.
+  c. In the vector table, which maps all interrupt and exception handlers in the system, you can find entries corresponding to these 23 EXTI lines.
+  d. For external signals like a button press, the process starts with connecting the button to a GPIO pin of the microcontroller. 
+     The GPIO pin must first be configured in input mode. Then, using the SYS configuration controller, a specific register (often SYSCFG_EXTICR) is programmed to establish a 
+    connection between the selected GPIO pin and the desired EXTI line. 
+  e. This connection typically goes through a multiplexer (MUX), which ensures that only one GPIO pin is linked to any given EXTI line. After this routing is in place, the EXTI line is configured to detect specific trigger conditions—such as rising edge, 
+     falling edge, or both. Once these steps are completed, the EXTI line can generate an interrupt that propagates to the NVIC, which in turn invokes the user-defined interrupt handler. This handler contains the logic to respond to the external event, 
+     such as toggling an LED or reading a sensor value. This mechanism allows STM32 systems to efficiently respond to real-world signals with precise and customizable control.
